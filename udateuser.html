@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axios Example</title>
+</head>
+<body>
+    
+    <div id="output"></div>
+
+    <!-- Include Axios library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        
+        function fetchData() {
+            axios.get('https://crudcrud.com/api/f6873df425d24a359e72083c9628d731/appointdata')
+                .then(function (response) {
+                    
+                    const data = response.data;
+                    const output = document.getElementById('output');
+                    output.innerHTML = '';
+
+                    
+                    data.forEach(function (user) {
+                        const userDetail = document.createElement('div');
+                        userDetail.innerHTML = `
+                            <p>Name: ${user.name}</p>
+                            <p>Email: ${user.email}</p>
+                            <button onclick="editUser('${user._id}', '${user.name}', '${user.email}')">Edit</button>
+                            <button onclick="deleteUser('${user._id}')">Delete</button>
+                        `;
+                        output.appendChild(userDetail);
+                    });
+                })
+                .catch(function (error) {
+                    
+                    console.error('Error:', error);
+                });
+        }
+
+        
+        function editUser(userId, userName, userEmail) {
+            
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editUserName').value = userName;
+            document.getElementById('editUserEmail').value = userEmail;
+        }
+
+        
+        function submitEditedUser() {
+            const userId = document.getElementById('editUserId').value;
+            const updatedName = document.getElementById('editUserName').value;
+            const updatedEmail = document.getElementById('editUserEmail').value;
+
+            axios.put(`https://crudcrud.com/api/f6873df425d24a359e72083c9628d731/appointdata/${userId}`, {
+                name: updatedName,
+                email: updatedEmail
+            })
+            .then(function (response) {
+                
+                console.log('User updated:', response.data);
+
+            
+                fetchData();
+            })
+            .catch(function (error) {
+                
+                console.error('Error:', error);
+            });
+        }
+
+        // Initial data fetch
+        fetchData();
+    </script>
+
+    <!-- Form for editing user details -->
+    <form id="editUserForm" style="display: none;">
+        <input type="hidden" id="editUserId">
+        <label for="editUserName">Name:</label>
+        <input type="text" id="editUserName" required>
+        <label for="editUserEmail">Email:</label>
+        <input type="email" id="editUserEmail" required>
+        <button type="button" onclick="submitEditedUser()">Submit</button>
+    </form>
+</body>
+</html>
